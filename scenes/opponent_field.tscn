@@ -1,0 +1,190 @@
+[gd_scene load_steps=12 format=3 uid="uid://d057x6lxl0ltn"]
+
+[ext_resource type="Script" uid="uid://bfun1cur26iea" path="res://scripts/battle_manager.gd" id="1_qprj8"]
+[ext_resource type="Script" uid="uid://cnvlvgjxb54ua" path="res://scripts/opponent_deck.gd" id="1_wj220"]
+[ext_resource type="Texture2D" uid="uid://cab0fe5vwt5yr" path="res://assets/CartaFundo2.png" id="2_s3t45"]
+[ext_resource type="PackedScene" uid="uid://drerm5jex1ovf" path="res://scenes/opponent_card_slot.tscn" id="3_6b2sf"]
+[ext_resource type="Script" uid="uid://hy8wrlqh3eee" path="res://scripts/opponent_hand.gd" id="4_ov86f"]
+[ext_resource type="FontFile" uid="uid://d2x7t0yehnjo4" path="res://assets/ui/PeaberryBase.ttf" id="6_7dba5"]
+[ext_resource type="Script" uid="uid://5xopoltkuhv4" path="res://scripts/Graveyard.gd" id="6_myng3"]
+[ext_resource type="Texture2D" uid="uid://bkgfcwy0eesjm" path="res://assets/graveyardImage.png" id="6_qprj8"]
+[ext_resource type="Texture2D" uid="uid://b8ytmkull7uy0" path="res://assets/ui/icCompassion.png" id="9_wx14n"]
+[ext_resource type="Texture2D" uid="uid://c4kj7m5j6sua0" path="res://assets/ui/icExplore.png" id="10_cdiv0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v32qa"]
+size = Vector2(143.33325, 206.66667)
+
+[node name="OpponentField" type="Node2D"]
+
+[node name="BattleManager" type="Node" parent="."]
+script = ExtResource("1_qprj8")
+
+[node name="Deck" type="Node2D" parent="."]
+position = Vector2(1770, 150)
+scale = Vector2(0.6, 0.6)
+script = ExtResource("1_wj220")
+
+[node name="DeckImage" type="Sprite2D" parent="Deck"]
+z_index = -2
+position = Vector2(-0.375, 0.49999988)
+scale = Vector2(0.17042825, 0.17483108)
+texture = ExtResource("2_s3t45")
+
+[node name="CardCountLabel" type="RichTextLabel" parent="Deck"]
+modulate = Color(0, 0, 0, 1)
+z_index = -2
+offset_left = -29.375
+offset_top = -34.5
+offset_right = -9.375
+offset_bottom = -11.0
+scale = Vector2(3, 3)
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Area2D" type="Area2D" parent="Deck"]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Deck/Area2D"]
+position = Vector2(0, 1.6666565)
+shape = SubResource("RectangleShape2D_v32qa")
+
+[node name="OpponentCardSlots" type="Node2D" parent="." groups=["opponent_slots_container"]]
+z_index = -3
+position = Vector2(0, -450)
+
+[node name="OpponentCardSlots" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(500, 800)
+
+[node name="OpponentCardSlots2" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(615, 800)
+
+[node name="OpponentCardSlots3" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(730, 800)
+
+[node name="OpponentCardSlots4" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(845, 800)
+
+[node name="OpponentCardSlots5" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(960, 800)
+
+[node name="OpponentCardSlots6" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(1075, 800)
+
+[node name="OpponentCardSlots7" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(1190, 800)
+
+[node name="OpponentCardSlots8" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(1305, 800)
+
+[node name="OpponentCardSlots9" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(1419, 800)
+
+[node name="OpponentCardSlots10" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(500, 650)
+card_slot_type = "Terreno"
+
+[node name="OpponentCardSlots11" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(615, 650)
+card_slot_type = "Terreno"
+
+[node name="OpponentCardSlots12" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(730, 650)
+card_slot_type = "Terreno"
+
+[node name="OpponentCardSlots13" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(845, 650)
+card_slot_type = "Terreno"
+
+[node name="OpponentCardSlots14" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(960, 650)
+card_slot_type = "Terreno"
+
+[node name="OpponentCardSlots15" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(1075, 650)
+card_slot_type = "Terreno"
+
+[node name="OpponentCardSlots16" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(1190, 650)
+card_slot_type = "Terreno"
+
+[node name="OpponentCardSlots17" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(1305, 650)
+card_slot_type = "Terreno"
+
+[node name="OpponentCardSlots18" parent="OpponentCardSlots" instance=ExtResource("3_6b2sf")]
+position = Vector2(1419, 650)
+card_slot_type = "Terreno"
+
+[node name="OpponentHand" type="Node2D" parent="."]
+script = ExtResource("4_ov86f")
+
+[node name="OpponentHealthLabel" type="RichTextLabel" parent="."]
+offset_left = 261.0
+offset_top = 272.0
+offset_right = 308.5
+offset_bottom = 317.5
+scale = Vector2(2, 2)
+theme_override_fonts/normal_font = ExtResource("6_7dba5")
+theme_override_fonts/bold_font = ExtResource("6_7dba5")
+theme_override_font_sizes/normal_font_size = 30
+theme_override_font_sizes/bold_font_size = 30
+bbcode_enabled = true
+text = "20
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OpponentEnergyLabel" type="RichTextLabel" parent="."]
+offset_left = 1645.0
+offset_top = 263.0
+offset_right = 1728.0
+offset_bottom = 303.0
+scale = Vector2(2, 2)
+theme_override_fonts/normal_font = ExtResource("6_7dba5")
+theme_override_fonts/bold_font = ExtResource("6_7dba5")
+theme_override_font_sizes/normal_font_size = 30
+theme_override_font_sizes/bold_font_size = 30
+text = "0"
+
+[node name="OpponentGraveyard" type="Node2D" parent="."]
+position = Vector2(1770, 305)
+script = ExtResource("6_myng3")
+
+[node name="GraveyardImage" type="Sprite2D" parent="OpponentGraveyard"]
+scale = Vector2(0.37438178, 0.35461956)
+texture = ExtResource("6_qprj8")
+
+[node name="CountLabel" type="Label" parent="OpponentGraveyard"]
+modulate = Color(0.003921569, 0, 0.07058824, 1)
+offset_left = -18.0
+offset_top = -17.0
+offset_right = 8.0
+offset_bottom = 16.0
+theme_override_font_sizes/font_size = 23
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="Area2D" type="Area2D" parent="OpponentGraveyard"]
+collision_layer = 32
+collision_mask = 0
+input_pickable = false
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="OpponentGraveyard/Area2D"]
+visible = false
+polygon = PackedVector2Array(-23, 16, -35, 20, -36, 27, -43, 27, -43, 32, 43, 33, 43, 28, 37, 27, 35, 19, 22, 15, 22, -19, 10, -31, -12, -32, -22, -20)
+
+[node name="HealthSprite" type="Sprite2D" parent="."]
+modulate = Color(0.20784314, 0.23921569, 0.6, 1)
+position = Vector2(373.00003, 311)
+scale = Vector2(0.1159995, 0.1159995)
+texture = ExtResource("9_wx14n")
+
+[node name="IcExplore" type="Sprite2D" parent="."]
+modulate = Color(0.2167702, 0.24833876, 0.62298524, 1)
+position = Vector2(1619, 288.00003)
+scale = Vector2(0.117999986, 0.117999986)
+texture = ExtResource("10_cdiv0")
