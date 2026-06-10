@@ -1,0 +1,191 @@
+extends Node2D
+
+@onready var attribute1_label = $Attribute1 # Ataque
+@onready var attribute2_label = $Attribute2 # Vida
+@onready var cost_label = $CostLabel       # Custo
+@onready var energy_gen_label = $EnergyGenLabel # NOVO: Geração
+@onready var animation_player = $AnimationPlayer
+@onready var card_image = $CardImage
+@onready var attack_indicator: Sprite2D = $AttackIndicator
+@onready var block_indicator: Sprite2D = $BlockIndicator
+@onready var hover_timer = $HoverTimer
+@onready var details_popup = $CardDetailsPopup
+@onready var sickness_indicator = $SicknessIndicator
+@onready var sickness_overlay = $SicknessOverlay
+
+const HOVER_POPUP_OFFSET = Vector2(80, -120)
+var ability_script = null
+var card_data_ref: Dictionary = {} # Para guardar todos os dados da carta
+var description: String = ""
+var card_type: String = ""
+var card_name: String = ""
+var attack_value: int = 0 # Usado pela IA
+var card_slot_card_is_in: Node2D = null
+var defeated: bool = false
+var energy_cost: int = 0
+var energy_generation: int = 0
+var base_health: int = 0  # NOVO: Vida base da carta
+var current_health: int = 0 # NOVO: Vida atual
+var plague_counters: int = 0 # NOVO: Marcadores de Peste
+var player_hand_ref
+var opponent_hand_ref
+var has_summoning_sickness: bool = false
+var keywords: Array = []
+var base_attack: int = 0
+var current_attack: int = 0
+var temp_attack_bonus: int = 0
+var temp_health_bonus: int = 0
+
+func _ready() -> void:
+	await get_tree().process_frame
+	var field_node = get_parent().get_parent()
+	if not is_instance_valid(field_node) or not (field_node.name == "1" or field_node.name == "2"):
+		printerr(self.name + " Error in _ready(): Could not determine player field node. Path attempted: " + str(get_path()))
+		# Attempting alternative path assuming CardManager might be under Main/[1 or 2] directly
+		field_node = get_parent()
+		if not is_instance_valid(field_node) or not (field_node.name == "1" or field_node.name == "2"):
+			printerr(self.name + " Error in _ready(): Still could not determine player field node. Final path attempted: " + str(get_path()))
+			return # Cannot proceed without finding the field node
+	var my_field_id = field_node.name
+	var opponent_field_id = "2" if my_field_id == "1" else "1"
+	var my_field_path = "/root/Main/" + my_field_id
+	var opponent_field_path = "/root/Main/" + opponent_field_id
+	player_hand_ref = get_node_or_null(my_field_path + "/PlayerHand")
+	opponent_hand_ref = get_node_or_null(opponent_field_path + "/OpponentHand")
+	if not is_instance_valid(player_hand_ref):
+		printerr(self.name + " Error in _ready(): PlayerHand node not found at " + my_field_path + "/PlayerHand")
+	if not is_instance_valid(opponent_hand_ref):
+		printerr(self.name + " Error in _ready(): OpponentHand node not found at " + opponent_field_path + "/OpponentHand")
+	if hover_timer:
+		hover_timer.timeout.connect(_on_hover_timer_timeout)
+
+# Função atualizada para mostrar/esconder labels
+func setup_card_display():
+	# Quando a carta do oponente está virada para baixo, nada deve ser visível
+	# Esta função será chamada APÓS a animação de virar, se aplicável
+	if card_type == "Terreno":
+		attribute1_label.visible = false
+		attribute2_label.visible = false
+		cost_label.visible = false
+		energy_gen_label.visible = true
+		energy_gen_label.text = "+" + str(energy_generation) + " E"
+	elif card_type == "Criatura": # Criatura ou Magia (ajustar para Magia se necessário)
+		attribute1_label.visible = true
+		attribute2_label.visible = true
+		cost_label.visible = false
+		energy_gen_label.visible = false
+		# Define os textos (eles são definidos no deck, mas garantimos aqui)
+		attribute1_label.text = str(current_attack)
+		attribute2_label.text = str(current_health)
+	
+	else:
+		
+		attribute1_label.visible = false
+		attribute2_label.visible = false
+		cost_label.visible = false
+		energy_gen_label.visible = false
+
+
+func set_card_image_texture(path: String):
+	card_image.texture = load(path)
+
+func set_defeated(status: bool):
+	defeated = status
+
+# Função auxiliar para obter o estado de derrota
+func get_defeated() -> bool:
+	return defeated
+	
+func add_plague_counter(amount: int):
+	plague_counters += amount
+	update_health_from_counters()
+
+func show_attack_indicator(visible: bool) -> void:
+	if is_instance_valid(attack_indicator):
+		attack_indicator.visible = visible
+
+func show_block_indicator(visible: bool) -> void:
+	if is_instance_valid(block_indicator):
+		block_indicator.visible = visible
+
+func hide_combat_indicators() -> void:
+	show_attack_indicator(false)
+	show_block_indicator(false)
+
+func _on_hover_timer_timeout():
+	if details_popup:
+		card_data_ref["current_health"] = current_health
+		card_data_ref["current_attack"] = current_attack
+		details_popup.show_popup(card_data_ref)
+		details_popup.global_position = global_position + HOVER_POPUP_OFFSET * scale # Ajusta pelo scale da carta
+
+# Adicione esta função para atualizar os detalhes se a vida mudar enquanto o popup está visível
+func update_details_popup_if_visible():
+	if details_popup and details_popup.visible:
+		card_data_ref["current_health"] = current_health
+		card_data_ref["current_attack"] = current_attack
+		details_popup.show_popup(card_data_ref) # Reaplica os dados
+
+func update_health_from_counters():
+	var health_reduction = plague_counters
+	current_health = max(0, base_health - health_reduction)
+	if is_instance_valid(attribute2_label):
+		attribute2_label.text = str(current_health)
+	if current_health <= 0:
+		defeated = true
+	update_details_popup_if_visible() # ATUALIZA O POPUP AQUI
+
+func set_has_summoning_sickness(value: bool):
+	has_summoning_sickness = value
+	if is_instance_valid(sickness_indicator):
+		sickness_indicator.visible = value
+		if value:
+			sickness_indicator.play("zzz") # Use "zzz" se você renomeou
+		else:
+			sickness_indicator.stop()
+	if is_instance_valid(sickness_overlay):
+		sickness_overlay.visible = value
+
+func has_keyword(keyword_name: String) -> bool:
+	return keywords.has(keyword_name)
+
+func initialize_stats(data: Dictionary):
+	base_attack = data.get("ataque", 0)
+	base_health = data.get("vida", 0)
+	current_attack = base_attack
+	current_health = base_health
+	update_stats_display()
+	
+func reset_stats_to_base():
+	current_health = base_health + temp_health_bonus
+	current_attack = base_attack + temp_attack_bonus
+	update_stats_display()
+
+func apply_stat_buff(attack_buff: int, health_buff: int):
+	current_attack = max(0, current_attack + attack_buff)
+	current_health = max(0, current_health + health_buff)
+	update_stats_display()
+
+func add_temp_buff(attack_buff: int, health_buff: int):
+	temp_attack_bonus += attack_buff
+	temp_health_bonus += health_buff
+	current_attack += attack_buff
+	current_health += health_buff
+	update_stats_display()
+
+func remove_temp_buffs():
+	if temp_attack_bonus == 0 and temp_health_bonus == 0:
+		return
+	current_attack = max(0, current_attack - temp_attack_bonus)
+	current_health = max(0, current_health - temp_health_bonus)
+	temp_attack_bonus = 0
+	temp_health_bonus = 0
+	update_stats_display()
+
+func update_stats_display():
+	if card_type == "Criatura":
+		if is_instance_valid(attribute1_label):
+			attribute1_label.text = str(current_attack)
+		if is_instance_valid(attribute2_label):
+			attribute2_label.text = str(current_health)
+		update_details_popup_if_visible()
